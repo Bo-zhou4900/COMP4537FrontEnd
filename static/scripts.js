@@ -1,3 +1,4 @@
+//This file was partially generated using chatGPT 4o
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
 const landingPage = document.getElementById('landing-page');
@@ -111,31 +112,42 @@ registerButton.addEventListener('click', async () => {
 });
 
 // Fetch user info and display it on the landing page
-const fetchUserInfo = async () => {
-    try {
-        const response = await fetch('https://nealfeng.duckdns.org/landing', {
-            method: 'GET',
-            headers: { 
-                'Authorization': `Bearer ${getToken()}` 
-            }
-        });
 
-        const data = await response.json();
-        if (response.ok) {
-            userInfo.innerHTML = `
-                <strong>Name:</strong> ${data.first_name}<br>
-                <strong>Email:</strong> ${data.email}<br>
-                <strong>API Calls Left:</strong> ${data.api_calls_left}
-            `;
-            if (data.is_admin) {
-                showAdminDashboard();
+const fetchUserInfo = async () => {
+    const token = getToken();
+    if (token) {
+        try {
+            const response = await fetch('https://nealfeng.duckdns.org/landing', {
+                method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${getToken()}` 
+                }
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                userInfo.innerHTML = `
+                    <strong>Name:</strong> ${data.first_name}<br>
+                    <strong>Email:</strong> ${data.email}<br>
+                    <strong>API Calls Left:</strong> ${data.api_calls_left}
+                `;
+                if (data.is_admin) {
+                    showAdminDashboard();
+                }
+            } else {
+                showLoginForm();
+                clearToken();
+                alert(data.error || 'Failed to fetch user info');
             }
-        } else {
-            alert(data.error || 'Failed to fetch user info');
+        } catch (error) {
+            console.error('Error:', error);
+            showLoginForm();
+            clearToken();
         }
-    } catch (error) {
-        console.error('Error:', error);
+    } else {
+        showLoginForm();
     }
+    
 };
 
 // Handle text generation
@@ -245,9 +257,9 @@ const showAdminDashboard = async () => {
             const stat = statsData[index] || {};
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${stat.endpoint || 'N/A'}</td>
                 <td>${stat.method || 'N/A'}</td>
                 <td>${stat.requests || '0'}</td>
+                <td>${stat.endpoint || 'N/A'}</td>
             `;
             endpointStats.appendChild(row);
         });
